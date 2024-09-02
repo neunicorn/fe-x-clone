@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { POSTS } from "../../utils/db/dummy";
+import { POSTS } from "../../../utils/db/dummy";
 
 import EditProfileModal from "./EditProfileModal";
 import { Posts } from "../../../components";
@@ -88,12 +88,14 @@ const ProfilePage = () => {
                 <input
                   type="file"
                   hidden
+                  accept="image/*"
                   ref={coverImgRef}
                   onChange={(e) => handleImgChange(e, "coverImg")}
                 />
                 <input
                   type="file"
                   hidden
+                  accept="image/*"
                   ref={profileImgRef}
                   onChange={(e) => handleImgChange(e, "profileImg")}
                 />

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { BiRepost } from "react-icons/bi";
+import { BsThreeDots } from "react-icons/bs";
 import {
+  FaFlag,
   FaRegBookmark,
   FaRegComment,
   FaRegHeart,
@@ -50,14 +52,37 @@ const Post = ({ post }) => {
               <span>·</span>
               <span>{formattedDate}</span>
             </span>
-            {isMyPost && (
-              <span className="flex justify-end flex-1">
-                <FaTrash
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={handleDeletePost}
-                />
-              </span>
-            )}
+            <div className="dropdown ml-auto group">
+              <div
+                tabIndex={0}
+                role="button"
+                className="group-hover:bg-gray-700 rounded-full p-2"
+              >
+                <BsThreeDots className="group-hover:text-blue-500" />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100  w-52 border border-gray-700 rounded"
+              >
+                {isMyPost && (
+                  <li>
+                    <div
+                      className="flex gap-4 items-center  flex-1 cursor-pointer hover:text-red-500"
+                      onClick={handleDeletePost}
+                    >
+                      <FaTrash />
+                      <p className="font-bold">Delete Post</p>
+                    </div>
+                  </li>
+                )}
+                <li>
+                  <div className="flex gap-4 items-center  flex-1 cursor-pointer">
+                    <FaFlag />
+                    <p className="font-bold">Report</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
           <div className="flex flex-col gap-3 overflow-hidden">
             <span>{post.text}</span>

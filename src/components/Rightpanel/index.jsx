@@ -6,13 +6,14 @@ const RightPanel = () => {
   const isLoading = false;
 
   return (
-    <div className="hidden lg:block my-4 mx-2">
-      <div className="bg[#16181C] p-4 rounded-md sticky top-2">
-        <p className="font-blod">Who to folow</p>
+    <div className="hidden lg:block  mx-6 ">
+      <div className="bg-black rounded-md sticky top-2 border border-gray-700">
+        <p className="font-bold text-lg m-4">Who to follow</p>
         <div className="flex flex-col gap-4">
           {/* item */}
           {isLoading && (
             <>
+              <RightPanelSkeleton />
               <RightPanelSkeleton />
               <RightPanelSkeleton />
               <RightPanelSkeleton />
@@ -21,14 +22,14 @@ const RightPanel = () => {
           {!isLoading &&
             USERS_FOR_RIGHT_PANEL?.map((user) => (
               <Link
-                to={`/profie/${user.username}`}
-                className="fex items-center justify-between gap-4"
+                to={`/profile/${user.username}`}
+                className="flex items-center justify-between gap-4 py-3 px-7 hover:bg-gray-900"
                 key={user._id}
               >
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-cente">
                   <div className="avatar">
                     <div className="w-8 rounded-full">
-                      <img src={user.profieImg || "/avatar-placeholder.png"} />
+                      <img src={user.profileImg || "/avatar-placeholder.png"} />
                     </div>
                   </div>
                   <div className="flex flex-col">
@@ -55,5 +56,4 @@ const RightPanel = () => {
     </div>
   );
 };
-
 export default RightPanel;
