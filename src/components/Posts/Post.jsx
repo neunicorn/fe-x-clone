@@ -21,7 +21,9 @@ const Post = ({ post }) => {
 
   const isCommenting = false;
 
-  const handleDeletePost = () => {};
+  const handleDeletePost = () => {
+    alert("POST DELETED");
+  };
 
   const handlePostComment = (e) => {
     e.preventDefault();

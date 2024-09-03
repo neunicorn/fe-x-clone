@@ -26,9 +26,9 @@ const RightPanel = () => {
                 className="flex items-center justify-between gap-4 py-3 px-7 hover:bg-gray-900"
                 key={user._id}
               >
-                <div className="flex gap-2 items-cente">
+                <div className="flex gap-2 items-center">
                   <div className="avatar">
-                    <div className="w-8 rounded-full">
+                    <div className="w-10 rounded-full">
                       <img src={user.profileImg || "/avatar-placeholder.png"} />
                     </div>
                   </div>

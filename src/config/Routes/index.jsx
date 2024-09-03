@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import {
   SignUp,
   Login,
@@ -6,20 +6,63 @@ import {
   NotificationPage,
   ProfilePage,
 } from "../../pages";
-import { RightPanel, Sidebar } from "../../components";
+import { LoadingSpinner, RightPanel, Sidebar } from "../../components";
+import { useQuery } from "@tanstack/react-query";
 
 const Router = () => {
+  const { data: authUser, isLoading } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/auth/me", {
+          method: "GET",
+        });
+        const data = await res.json();
+        if (!data.status) return null;
+        if (!res.ok) throw new Error(data.message);
+
+        console.log(`auth user: ${data}`);
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    retry: false,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex justify-center items-center mx-auto">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
   return (
     <BrowserRouter>
-      <Sidebar />
+      {authUser && <Sidebar />}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/notifications" element={<NotificationPage />} />
-        <Route path="/profile/:username" element={<ProfilePage />} />
+        <Route
+          path="/"
+          element={authUser ? <HomePage /> : <Navigate to={"/login"} />}
+        />
+        <Route
+          path="/signup"
+          element={!authUser ? <SignUp /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/login"
+          element={!authUser ? <Login /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/notifications"
+          element={authUser ? <NotificationPage /> : <Navigate to={"/login"} />}
+        />
+        <Route
+          path="/profile/:username"
+          element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />}
+        />
       </Routes>
-      <RightPanel />
+      {authUser && <RightPanel />}
     </BrowserRouter>
   );
 };
