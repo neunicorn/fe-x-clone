@@ -1,8 +1,11 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { BiRepost } from "react-icons/bi";
 import { BsThreeDots } from "react-icons/bs";
 import {
   FaFlag,
+  FaLink,
   FaRegBookmark,
   FaRegComment,
   FaRegHeart,
@@ -12,17 +15,47 @@ import { Link } from "react-router-dom";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
+  const { data: authUser } = useQuery({
+    queryKey: ["authUser"],
+  });
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deletePost, isPending } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch(`/api/posts/${post._id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (!data.status || !res.ok) throw new Error(data.message);
+        return data;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      toast("Post Deleted", {
+        style: {
+          borderRadius: "10px",
+          background: "#198DDA",
+          color: "#fff",
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
   const postOwner = post.user;
   const isLiked = false;
 
-  const isMyPost = true;
+  const isMyPost = authUser.data._id === post.user._id;
 
   const formattedDate = "1h";
 
   const isCommenting = false;
 
   const handleDeletePost = () => {
-    alert("POST DELETED");
+    deletePost();
   };
 
   const handlePostComment = (e) => {
@@ -64,7 +97,7 @@ const Post = ({ post }) => {
               </div>
               <ul
                 tabIndex={0}
-                className="dropdown-content z-[1] menu p-2 shadow bg-base-100  w-52 border border-gray-700 rounded"
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100  w-56 border border-gray-700 rounded"
               >
                 {isMyPost && (
                   <li>
@@ -73,14 +106,34 @@ const Post = ({ post }) => {
                       onClick={handleDeletePost}
                     >
                       <FaTrash />
-                      <p className="font-bold">Delete Post</p>
+                      <p className="font-semibold">Delete Post</p>
+                    </div>
+                  </li>
+                )}
+                {!isMyPost && (
+                  <li>
+                    <div className="flex gap-4 items-center  flex-1 cursor-pointer">
+                      <FaFlag />
+                      <p className="font-semibold">Report</p>
                     </div>
                   </li>
                 )}
                 <li>
-                  <div className="flex gap-4 items-center  flex-1 cursor-pointer">
-                    <FaFlag />
-                    <p className="font-bold">Report</p>
+                  <div
+                    className="flex gap-4 items-center flex-1 cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`http://localhost:5000/`);
+                      toast("Coppied to Clipboard", {
+                        style: {
+                          borderRadius: "10px",
+                          background: "#198DDA",
+                          color: "#fff",
+                        },
+                      });
+                    }}
+                  >
+                    <FaLink />
+                    <p className="font-semibold">Copy Url</p>
                   </div>
                 </li>
               </ul>
