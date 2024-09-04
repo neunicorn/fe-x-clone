@@ -50,7 +50,21 @@ const Post = ({ post }) => {
 
   const isMyPost = authUser.data._id === post.user._id;
 
-  const formattedDate = "1h";
+  const handleDate = (date) => {
+    const now = new Date();
+    const diff = now.getTime() - new Date(date).getTime();
+    const minutes = Math.floor(diff / 1000 / 60);
+
+    if (minutes < 60) {
+      return `${minutes}m`;
+    } else if (minutes < 1440) {
+      return `${Math.floor(minutes / 60)}h`;
+    } else {
+      return new Date(date).toLocaleDateString();
+    }
+  };
+
+  const formattedDate = handleDate(post.createdAt);
 
   const isCommenting = false;
 
