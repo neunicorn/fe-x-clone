@@ -12,6 +12,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import LoadingSpinner from "../LoadingSpinner";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -21,7 +22,12 @@ const Post = ({ post }) => {
 
   const queryClient = useQueryClient();
 
-  const { mutate: deletePost, isPending } = useMutation({
+  const postOwner = post.user;
+  const isLiked = post.likes.includes(authUser.data._id);
+
+  const isMyPost = authUser.data._id === post.user._id;
+
+  const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`/api/posts/${post._id}`, {
@@ -45,10 +51,45 @@ const Post = ({ post }) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
-  const postOwner = post.user;
-  const isLiked = false;
 
-  const isMyPost = authUser.data._id === post.user._id;
+  const {
+    mutate: likePost,
+    isPending: isLiking,
+    error,
+  } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch(`api/posts/like/${post._id}`, {
+          method: "POST",
+        });
+
+        const data = await res.json();
+        console.log("data", data);
+
+        if (!res.ok) throw new Error(data.message || "something went wrong");
+
+        return data;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: (updatedLikes) => {
+      // update cache
+      queryClient.setQueryData(["posts"], (oldData) => {
+        return oldData?.data.map((p) => {
+          if (p._id === post._id) {
+            console.log("updatedLikes", updatedLikes);
+            console.log("p", p);
+            return { ...p, likes: updatedLikes.data };
+          }
+          return p;
+        });
+      });
+    },
+    onError: () => {
+      toast.error(error.message);
+    },
+  });
 
   const handleDate = (date) => {
     const now = new Date();
@@ -59,6 +100,10 @@ const Post = ({ post }) => {
       return `${minutes}m`;
     } else if (minutes < 1440) {
       return `${Math.floor(minutes / 60)}h`;
+    } else if (minutes < 10080) {
+      return `${Math.floor(minutes / 1440)}d`;
+    } else if (minutes < 43848) {
+      return `${Math.floor(minutes / 10080)}w`;
     } else {
       return new Date(date).toLocaleDateString();
     }
@@ -76,7 +121,10 @@ const Post = ({ post }) => {
     e.preventDefault();
   };
 
-  const handleLikePost = () => {};
+  const handleLikePost = () => {
+    if (isLiking) return;
+    likePost();
+  };
 
   return (
     <>
@@ -175,7 +223,7 @@ const Post = ({ post }) => {
               >
                 <FaRegComment className="w-4 h-4  text-slate-500 group-hover:text-sky-400" />
                 <span className="text-sm text-slate-500 group-hover:text-sky-400">
-                  {post.comments.length}
+                  {post?.comments.length}
                 </span>
               </div>
               {/* We're using Modal Component from DaisyUI */}
@@ -186,7 +234,7 @@ const Post = ({ post }) => {
                 <div className="modal-box rounded border border-gray-600">
                   <h3 className="font-bold text-lg mb-4">COMMENTS</h3>
                   <div className="flex flex-col gap-3 max-h-60 overflow-auto">
-                    {post.comments.length === 0 && (
+                    {post?.comments.length === 0 && (
                       <p className="text-sm text-slate-500">
                         No comments yet 🤔 Be the first one 😉
                       </p>
@@ -228,11 +276,7 @@ const Post = ({ post }) => {
                       onChange={(e) => setComment(e.target.value)}
                     />
                     <button className="btn btn-primary rounded-full btn-sm text-white px-4">
-                      {isCommenting ? (
-                        <span className="loading loading-spinner loading-md"></span>
-                      ) : (
-                        "Post"
-                      )}
+                      {isCommenting ? <LoadingSpinner size="md" /> : "Post"}
                     </button>
                   </form>
                 </div>
@@ -262,7 +306,7 @@ const Post = ({ post }) => {
                     isLiked ? "text-pink-500" : ""
                   }`}
                 >
-                  {post.likes.length}
+                  {post?.likes.length}
                 </span>
               </div>
             </div>
