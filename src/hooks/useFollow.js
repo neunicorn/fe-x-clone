@@ -23,6 +23,7 @@ const useFollow = () => {
 
         if (!res.ok) throw new Error(data.message);
 
+        console.log(data);
         return data;
       } catch (error) {
         throw new Error(error);

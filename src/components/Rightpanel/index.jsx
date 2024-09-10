@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { USERS_FOR_RIGHT_PANEL } from "../../utils/db/dummy";
 import RightPanelSkeleton from "../Skeletons/RightPaneSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import useFollow from "../../hooks/useFollow";
 import LoadingSpinner from "../LoadingSpinner";
+import { useRef, useState } from "react";
+import FollowButton from "./FollowButton";
 
 const RightPanel = () => {
   // const isLoading = false;
@@ -29,7 +30,7 @@ const RightPanel = () => {
     },
   });
 
-  const { followUnFollow, isSuccess, followStatus } = useFollow();
+  const { followUnFollow, followStatus } = useFollow();
 
   if (suggestedUser?.data.length === 0)
     return <div className="md:w-64 w-0"></div>;
@@ -71,22 +72,16 @@ const RightPanel = () => {
                   </div>
                 </div>
                 <div>
-                  <button
+                  {/* <button
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
-                    id="follow"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      followUnFollow(user._id);
-                      if (followStatus.message === "FOLLOWING USER SUCCESS") {
-                        document.getElementById("follow").innerText =
-                          "Unfollow";
-                      } else {
-                        document.getElementById("follow").innerText = "follow";
-                      }
-                    }}
+                    onClick={(e) => handleOnclick(e, user._id)}
                   >
-                    follow
-                  </button>
+                    {followBtn}
+                  </button> */}
+                  <FollowButton
+                    followUnFollow={followUnFollow}
+                    userId={user._id}
+                  />
                 </div>
               </Link>
             ))}
